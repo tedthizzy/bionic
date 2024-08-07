@@ -1,0 +1,45 @@
+{
+    "name": "bionic-reading",
+    "displayName": "Bionic Reading",
+    "description": "An extension to emphasize parts of words for better readability",
+    "version": "0.0.1",
+    "publisher": "your-publisher-name",
+    "engines": {
+        "vscode": "^1.52.0"
+    },
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "bionic-reading.emphasizeWords",
+                "title": "Emphasize Words"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "properties": {
+                "bionic-reading.percentageOfWord": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "The percentage of the word to mark as bold."
+                },
+                "bionic-reading.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Controls if the Emphasize Words mode is enabled or not."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.52.0",
+        "typescript": "^4.1.3"
+    }
+}
