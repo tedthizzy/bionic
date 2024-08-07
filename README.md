@@ -33,6 +33,7 @@ Configure the extension via the settings UI or `settings.json`:
     "bionic-reading.percentageOfWord": 0.5,
     "bionic-reading.enabled": true
 }
+```
 
 **Excluded Keywords**
 Automatically excludes:
@@ -43,6 +44,6 @@ Common DOM properties (e.g., backgroundColor, href, src, classList, etc.)
 Contribution
 Contributions are welcome. Open issues, submit pull requests, or provide feedback.
 
-License
+**License**
 Licensed under the MIT License.
 
