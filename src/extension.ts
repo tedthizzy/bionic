@@ -22,62 +22,77 @@ export function activate(context: vscode.ExtensionContext) {
         const text = editor.document.getText();
         const decorationsArray: vscode.DecorationOptions[] = [];
 
-        const keywordsToExclude = ["const", "function", "async", "var", "console.log"];
-        let inQuotes = false;
-        let inComment = false;
-        let pos = 0;
+        // const keywordsToExclude = ["const", "function", "async", "var", "console", "log"];
+        const keywordsToExclude = [
+            "const", "function", "async", "var", "console", "log",
+            "let", "class", "import", "export", "new", "return", "if", "else",
+            "switch", "case", "break", "continue", "for", "while", "do", "try",
+            "catch", "finally", "throw", "typeof", "instanceof", "delete", "void",
+            "this", "super", "extends", "await", "yield", "static", "get", "set",
+            "require", "module", "exports", "process", "Buffer", "setTimeout",
+            "setInterval", "clearTimeout", "clearInterval", "Math", "Date", "RegExp",
+            "JSON", "eval", "parseInt", "parseFloat", "isNaN", "isFinite",
+            "document", "window", "getElementById", "querySelector", "querySelectorAll",
+            "addEventListener", "removeEventListener", "appendChild", "removeChild",
+            "createElement", "innerHTML", "innerText", "textContent", "className", "id", "style",
+            "forEach", "map", "filter", "reduce", "find", "findIndex", "every", "some",
+            "slice", "splice", "concat", "push", "pop", "shift", "unshift", "join",
+            "sort", "reverse", "includes", "indexOf", "lastIndexOf", "charAt",
+            "charCodeAt", "endsWith", "startsWith", "substring", "toLowerCase", "toUpperCase",
+            "trim", "trimStart", "trimEnd", "replace", "split",
+            "backgroundColor", "href", "src", "alt", "title", "width", "height",
+            "classList", "dataset", "offsetHeight", "offsetWidth", "clientHeight", "clientWidth"
+        ];
+        const wordPattern = /\b\w+\b/g;
+        const quotePattern = /(["'`]).*?\1/g;
+        const commentPattern = /(\/\/.*$|\/\*[\s\S]*?\*\/)/gm;
 
-        while (pos < text.length) {
-            let char = text[pos];
+        let match;
 
-            // Handle comments
-            if (text.substr(pos, 2) === '//' || text.substr(pos, 2) === '/*') {
-                inComment = true;
-            }
-            if (inComment && text.substr(pos, 2) === '*/') {
-                inComment = false;
-                pos += 2;
+        // Exclude comments and quoted text
+        let excludedRanges: vscode.Range[] = [];
+
+        while ((match = quotePattern.exec(text)) !== null) {
+            const startPos = editor.document.positionAt(match.index);
+            const endPos = editor.document.positionAt(match.index + match[0].length);
+            excludedRanges.push(new vscode.Range(startPos, endPos));
+        }
+
+        while ((match = commentPattern.exec(text)) !== null) {
+            const startPos = editor.document.positionAt(match.index);
+            const endPos = editor.document.positionAt(match.index + match[0].length);
+            excludedRanges.push(new vscode.Range(startPos, endPos));
+        }
+
+        const isExcluded = (pos: number) => {
+            return excludedRanges.some(range => {
+                const start = editor.document.offsetAt(range.start);
+                const end = editor.document.offsetAt(range.end);
+                return pos >= start && pos < end;
+            });
+        };
+
+        while ((match = wordPattern.exec(text)) !== null) {
+            const word = match[0];
+            const startPos = editor.document.positionAt(match.index);
+            const endPos = editor.document.positionAt(match.index + word.length);
+
+            if (isExcluded(match.index) || word.length < 3 || keywordsToExclude.includes(word)) {
                 continue;
             }
-            if (inComment && char === '\n') {
-                inComment = false;
-            }
 
-            // Skip quoted text
-            if (char === '\'' || char === '"' || char === '`') {
-                inQuotes = !inQuotes;
-            }
+            const length = word.length;
+            const boldEndIndex = Math.ceil(length * percentageOfWord);
 
-            if (!inQuotes && !inComment && /\w/.test(char)) { // Check if it's a word character and not in quotes or comments
-                let startPos = editor.document.positionAt(pos);
-                let wordEnd = pos;
-
-                // Find the end of the word
-                while (wordEnd < text.length && /\w/.test(text[wordEnd])) {
-                    wordEnd++;
+            for (let i = 0; i < length; i++) {
+                const isCapitalLetter = /[A-Z]/.test(word[i]);
+                const shouldBeBold = i < boldEndIndex || isCapitalLetter;
+                if (shouldBeBold) {
+                    const charStartPos = editor.document.positionAt(match.index + i);
+                    const charEndPos = editor.document.positionAt(match.index + i + 1);
+                    const range = new vscode.Range(charStartPos, charEndPos);
+                    decorationsArray.push({ range });
                 }
-
-                const word = text.substring(pos, wordEnd);
-
-                if (word.length >= 3 && !keywordsToExclude.some(keyword => word.startsWith(keyword))) {
-                    const length = word.length;
-                    const boldEnd = pos + Math.ceil(length * percentageOfWord);
-
-                    for (let i = 0; i < length; i++) {
-                        const isCapitalLetter = /[A-Z]/.test(word[i]);
-                        const shouldBeBold = i < boldEnd || isCapitalLetter;
-                        if (shouldBeBold) {
-                            const charStartPos = editor.document.positionAt(pos + i);
-                            const charEndPos = editor.document.positionAt(pos + i + 1);
-                            const range = new vscode.Range(charStartPos, charEndPos);
-                            decorationsArray.push({ range });
-                        }
-                    }
-                }
-
-                pos = wordEnd;
-            } else {
-                pos++;
             }
         }
 
@@ -113,3 +128,72 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
+
+
+// import * as vscode from 'vscode';
+
+// export function activate(context: vscode.ExtensionContext) {
+//     const emphasizeDecoration = vscode.window.createTextEditorDecorationType({
+//         fontWeight: 'bold'
+//     });
+
+//     const updateDecorations = (editor: vscode.TextEditor) => {
+//         if (!editor) {
+//             return;
+//         }
+
+//         const text = editor.document.getText();
+//         const decorationsArray: vscode.DecorationOptions[] = [];
+
+//         let inQuotes = false;
+//         let pos = 0;
+
+//         while (pos < text.length) {
+//             let char = text[pos];
+
+//             if (char === '\'' || char === '"' || char === '`') {
+//                 inQuotes = !inQuotes;
+//             }
+
+//             if (!inQuotes && /\w/.test(char)) { // Check if it's a word character and not in quotes
+//                 let startPos = editor.document.positionAt(pos);
+//                 let wordEnd = pos;
+
+//                 // Find the end of the word
+//                 while (wordEnd < text.length && /\w/.test(text[wordEnd])) {
+//                     wordEnd++;
+//                 }
+
+//                 const endPos = editor.document.positionAt(pos + Math.ceil((wordEnd - pos) / 2));
+//                 const range = new vscode.Range(startPos, endPos);
+//                 decorationsArray.push({ range });
+
+//                 pos = wordEnd;
+//             } else {
+//                 pos++;
+//             }
+//         }
+
+//         editor.setDecorations(emphasizeDecoration, decorationsArray);
+//     };
+
+//     const activeEditor = vscode.window.activeTextEditor;
+//     if (activeEditor) {
+//         updateDecorations(activeEditor);
+//     }
+
+//     vscode.window.onDidChangeActiveTextEditor(editor => {
+//         if (editor) {
+//             updateDecorations(editor);
+//         }
+//     }, null, context.subscriptions);
+
+//     vscode.workspace.onDidChangeTextDocument(event => {
+//         const editor = vscode.window.activeTextEditor;
+//         if (editor && event.document === editor.document) {
+//             updateDecorations(editor);
+//         }
+//     }, null, context.subscriptions);
+// }
+
+// export function deactivate() {}
