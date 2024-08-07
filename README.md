@@ -11,8 +11,9 @@
 
 ## Installation
 
-1. Install the extension from the VS Code Marketplace.
-2. Reload VS Code to activate the extension.
+1. Download the extension.
+2. Extract the extension to your `.vscode/extensions` directory.
+3. Reload VS Code to activate the extension.
 
 ## Usage
 
@@ -32,3 +33,16 @@ Configure the extension via the settings UI or `settings.json`:
     "bionic-reading.percentageOfWord": 0.5,
     "bionic-reading.enabled": true
 }
+
+**Excluded Keywords**
+Automatically excludes:
+
+JavaScript/TypeScript reserved keywords (e.g., const, function, return, if, else, etc.)
+Common functions/methods (e.g., console.log, setTimeout, querySelector, forEach, includes, etc.)
+Common DOM properties (e.g., backgroundColor, href, src, classList, etc.)
+Contribution
+Contributions are welcome. Open issues, submit pull requests, or provide feedback.
+
+License
+Licensed under the MIT License.
+
