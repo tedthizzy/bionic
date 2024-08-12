@@ -41,7 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
             "charCodeAt", "endsWith", "startsWith", "substring", "toLowerCase", "toUpperCase",
             "trim", "trimStart", "trimEnd", "replace", "split",
             "backgroundColor", "href", "src", "alt", "title", "width", "height",
-            "classList", "dataset", "offsetHeight", "offsetWidth", "clientHeight", "clientWidth"
+            "classList", "dataset", "offsetHeight", "offsetWidth", "clientHeight", "clientWidth",
+            "in", "of", "from", "as", "default", "interface", "type", "enum",
+            "namespace", "implements", "public", "private", "protected",
+            "readonly", "declare"          
         ];
         const wordPattern = /\b\w+\b/g;
         const quotePattern = /(["'`]).*?\1/g;
@@ -128,72 +131,3 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
-
-
-// import * as vscode from 'vscode';
-
-// export function activate(context: vscode.ExtensionContext) {
-//     const emphasizeDecoration = vscode.window.createTextEditorDecorationType({
-//         fontWeight: 'bold'
-//     });
-
-//     const updateDecorations = (editor: vscode.TextEditor) => {
-//         if (!editor) {
-//             return;
-//         }
-
-//         const text = editor.document.getText();
-//         const decorationsArray: vscode.DecorationOptions[] = [];
-
-//         let inQuotes = false;
-//         let pos = 0;
-
-//         while (pos < text.length) {
-//             let char = text[pos];
-
-//             if (char === '\'' || char === '"' || char === '`') {
-//                 inQuotes = !inQuotes;
-//             }
-
-//             if (!inQuotes && /\w/.test(char)) { // Check if it's a word character and not in quotes
-//                 let startPos = editor.document.positionAt(pos);
-//                 let wordEnd = pos;
-
-//                 // Find the end of the word
-//                 while (wordEnd < text.length && /\w/.test(text[wordEnd])) {
-//                     wordEnd++;
-//                 }
-
-//                 const endPos = editor.document.positionAt(pos + Math.ceil((wordEnd - pos) / 2));
-//                 const range = new vscode.Range(startPos, endPos);
-//                 decorationsArray.push({ range });
-
-//                 pos = wordEnd;
-//             } else {
-//                 pos++;
-//             }
-//         }
-
-//         editor.setDecorations(emphasizeDecoration, decorationsArray);
-//     };
-
-//     const activeEditor = vscode.window.activeTextEditor;
-//     if (activeEditor) {
-//         updateDecorations(activeEditor);
-//     }
-
-//     vscode.window.onDidChangeActiveTextEditor(editor => {
-//         if (editor) {
-//             updateDecorations(editor);
-//         }
-//     }, null, context.subscriptions);
-
-//     vscode.workspace.onDidChangeTextDocument(event => {
-//         const editor = vscode.window.activeTextEditor;
-//         if (editor && event.document === editor.document) {
-//             updateDecorations(editor);
-//         }
-//     }, null, context.subscriptions);
-// }
-
-// export function deactivate() {}
